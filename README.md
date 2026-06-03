@@ -10,7 +10,7 @@ Desarrollar e implementar un modelo de Redes Neuronales Convolucionales para cla
 # Descripción del dataset
 El conjunto de datos base utilizado para este proyecto es el dataset ["Fruits-360"](https://www.kaggle.com/datasets/moltean/fruits/data) creado por Mihai Oltean, disponible públicamente en Kaggle. Se trata de una base de datos de alta calidad diseñada específicamente para la clasificación de alimentos.
 
-Tiene un total de 260 categorías distintas que incluyen desde frutas comunes como manzanas, plátanos o peras, hasta frutos secos y vegetales exóticos como la cherimoya, pitahaya y kohlrabi.
+Tiene un total de 262 categorías distintas que incluyen desde frutas comunes como manzanas, plátanos o peras, hasta frutos secos y vegetales exóticos como la cherimoya, pitahaya y kohlrabi. Contiene un total de 225,369 imagenes.
 
 # Estrategia de división
 Esta división se fundamentó en una división inicial estándar de 80% para entrenamiento (Training) y 20% para prueba (Test). Sin embargo, para garantizar una correcta calibración de hiperparámetros, el bloque del 80% asignado a entrenamiento se subdividió, extrayendo un 10% del total del dataset exclusivamente para la validación (Validation). Esto resulta en una proporción efectiva de 70% Training, 10% Validation y 20% Test.
@@ -26,55 +26,37 @@ Esta división se fundamentó en una división inicial estándar de 80% para ent
 ## 1. Carga de datos
 Se importó el conjunto de imágenes original directamente desde la plataforma Kaggle hacia el entorno de trabajo.
 
-## 2. Estructuración y división de Conjuntos
-Se reorganizaron los directorios aplicando la estrategia matemática de división: 80% original para training, subdividido en 70% training y 10% validation. Por último, 20% para el conjunto de test.
+## 2. Análisis Volumétrico Inicial
+Se escaneó la estructura de carpetas original para contar el número de imágenes por clase y obtener una primera visión de la distribución del dataset. Esto incluyó la detección de categorías y la validación de las extensiones de imagen (`.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.tiff`).
 
-Como parte fundamental de la limpieza de datos, se realizó un proceso de agrupación para simplificar las etiquetas del modelo. El dataset original contenía clases demasiado específicas para una misma fruta. Por ejemplo, para la banana existían categorías independientes como Banana Yellow, Banana Red y Banana Lady Finger. Para resolver esto, se reestructuró el almacenamiento agrupando todos los elementos de una misma fruta en una sola carpeta contenedora, en este caso, Banana. Este proceso de categorización basado en el nombre base de la fruta se repitió con cada clase, permitiendo que el modelo aprenda a identificar la fruta de forma general.
+## 3. Filtrado de clases
+A partir de los datos originales se seleccionaron únicamente las 10 frutas más comunes [2], siguiendo una referencia de popularidad y consumo habitual. Las clases elegidas fueron:
+- apple
+- avocado
+- mango
+- banana
+- cherry
+- pineapple
+- strawberry
+- watermelon
+- grape
+- orange
 
-## 3. Análisis Volumétrico Inicial
+El resto de clases se eliminaron del conjunto de datos para simplificar el modelo y garantizar que sólo se trabajara con categorías bien representadas. En total se eliminaron 252 clases y un total de 215,188 imagenes.
 
-Se escaneó el dataset para contabilizar las imágenes disponibles para cada subconjunto. La cantidad inicial de imágenes antes del balanceo son:
-- Training: 123,586 imágenes
-- Validation: 13,635 imágenes
-- Test: 45,724 imágenes
+## 4. Truncamiento de clases para balanceo
+Se equilibraron las clases truncando cada carpeta a la cantidad de imágenes de la clase más pequeña, la cual fue orange, con un total de 821 imagenes. El proceso usó selección aleatoria de imágenes para eliminar el exceso y así lograr un conjunto balanceado entre las 10 categorías seleccionadas. Teniendo al final un total de 8120 imagenes en total
 
-## 4. Diagnóstico Visual de Distribución
+## 5. Estructura y división de conjuntos
+Los datos balanceados se reorganizaron en tres particiones:
+- `Training`: 70%
+- `Validation`: 10%
+- `Test`: 20%
 
-Se generaron gráficos de barras para ilustrar la cantidad exacta de imágenes por clase en cada subconjunto (Training, Validation y Test), marcando umbrales críticos de referencia.
+Para cada clase se crearon directorios separados dentro de `Training`, `Validation` y `Test`, y se copiaron las imágenes correspondientes según el porcentaje definido.
 
-Los umbrales fueron fundamentales porque actuaron como criterios de decisión: se eliminaron clases que no alcanzaban el límite inferior por falta de datos estadísticamente viables, y se recortaron aleatoriamente las clases que excedían el límite superior para garantizar una distribución equilibrada.
-
-## 5.  Balanceo de datos
-**Training:** El proceso de balanceo de datos se ejecutó mediante un límite inferior y un límite superior. Se eliminaron las clases que no alcanzaban el límite inferior por falta de datos. Y se recortó aleatoriamente las clases que excedían el límite superior.
-
-**Validation y Test:** En estos subconjuntos se aplicó un límite máximo específico para recortar el excedente de imágenes en cada categoría. Posteriormente, se ejecutó un proceso de sincronización para alinear las clases de ambas particiones con las del conjunto de Training, eliminando categorías huérfanas.
-
-
-### Umbrales de Referencia
-
-**Training**: Para evitar sesgo de clase, los límites superior e inferior se establecieron en **3,000** y **2,000** imágenes respectivamente, garantizando una cantidad de muestras estadísticamente viable. Este rango representó el punto medio del dataset original, logrando una distribución equitativa de datos para un aprendizaje equilibrado del modelo. Como resultado, se eliminaron **79,335 imágenes** de clases sin suficientes datos.
-
-**Validation**: Siguiendo una regla de tres proporcional con el subconjunto de entrenamiento, el umbral se calculó como: (3,000 × 10) / 70 ≈ **428 imágenes**. Como resultado, se eliminaron **12,771 imágenes** de las clases excedentes.
-
-**Test**: Aplicando la misma metodología: (3,000 × 20) / 70 ≈ **857 imágenes**. Como resultado, se eliminaron **31,848 imágenes** de las clases excedentes.
-
-Tras aplicar estos umbrales, se eliminó un total de **63 clases**, conservando solo las **16 clases** más robustas:
-- Apple
-- Avocado
-- Blackberry
-- Cherry
-- Cucumber
-- Grape
-- Nut
-- Onion
-- Orange
-- Peach
-- Pear
-- Pepper
-- Plum
-- Quince
-- Raspberry
-- Tomato
+## 6. Verificación de la distribución final
+Tras la nueva partición se verificó la distribución por clase en los tres subconjuntos con gráficos de barras. Además, se listaron las clases finales presentes en el conjunto de entrenamiento para asegurar que el filtrado y el balanceo se habían aplicado correctamente.
 
 # Construcción del modelo
 
@@ -113,7 +95,7 @@ Utilizamos las siguientes métricas para evaluar el desempeño del modelo de pre
 
 ## Matriz de Confusión
 
-Para evaluar de manera exhaustiva el rendimiento del modelo, se generaron dos matrices de confusión: una global que agrupa todas las predicciones y otra multiclase de 16×16 que analiza el comportamiento ante cada categoría.
+Para evaluar de manera exhaustiva el rendimiento del modelo, se generaron dos matrices de confusión: una global agregada y otra multiclase de 10×10 que analiza el comportamiento por cada categoría.
 
 ### Matriz de Confusión Global
 
@@ -121,20 +103,32 @@ Los datos obtenidos en el conjunto de prueba son:
 
 | Métrica | Cantidad | Significado |
 |----------|----------|----------|
-| True Positives | 6,631 | Imágenes donde el modelo predijo correctamente la categoría de fruta. |
-| True Negatives | 102,503 | Casos donde el modelo descartó correctamente las otras 15 clases no correspondientes. |
-| False Positives | 217 | Instancias donde la red asignó erróneamente una fruta a una categoría incorrecta. |
-| False Negatives | 217 | Casos donde imágenes de frutas reales fueron clasificadas en categorías incorrectas. |
+| True Positives | 1,065 | Imágenes positivas correctamente identificadas. |
+| False Negatives | 585 | Imágenes positivas clasificadas incorrectamente como negativas. |
+| False Positives | 585 | Imágenes negativas clasificadas incorrectamente como positivas. |
+| True Negatives | 14,265 | Imágenes negativas correctamente descartadas. |
 
-**Análisis:** El desempeño del modelo es altamente eficiente. Un volumen de 6,631 verdaderos positivos frente a apenas 217 errores totales demuestra que la red neuronal posee una capacidad de generalización sobresaliente ante datos completamente nuevos. La precisión operativa asegura un riesgo mínimo de cometer clasificaciones erróneas en aplicaciones reales.
+**Análisis:** La matriz global muestra un comportamiento equilibrado: hay la misma cantidad de falsos positivos y falsos negativos, con 1,065 verdaderos positivos y 14,265 verdaderos negativos. Esto indica que el sistema mantiene un nivel homogéneo de decisión entre clases positivas y negativas en el conjunto de prueba.
 
 ![Matriz de Confusión Global](general_confusion_matrix.png)
 
 ### Matriz de Confusión por Clases
 
-La matriz multiclase de 16×16 permite observar el comportamiento específico del modelo ante cada categoría de fruta. La diagonal principal muestra altas tasas de verdaderos positivos por categoría, destacando clases como *Avocado* y *Blackberry* donde el modelo alcanzó una precisión del 100%.
+La matriz multiclase de 10×10 muestra el desempeño de cada fruta en el conjunto de test. Las clases con mayor tasa de verdaderos positivos fueron:
+- `orange`: 163
+- `strawberry`: 135
+- `cherry`: 129
 
-**Punto de Mejora:** El principal desafío identificado es la distinción entre *Tomato* y *Pepper*, donde 84 tomates reales fueron clasificados erróneamente como pimientos. Los tomates evaluados presentaban morfologías ligeramente oblongas o alargadas; el extractor de bordes de la CNN generó descriptores de forma geométricamente similares a los de un pimiento regular, provocando asignación de probabilidades erróneas. Este es un área específica para futuras mejoras mediante data augmentation o arquitecturas más profundas.
+Las principales confusiones observadas en la matriz son:
+- `apple` vs `mango`: 38 casos
+- `banana` vs `mango`: 30 casos
+- `mango` vs `orange`: 31 casos
+- `pineapple` vs `orange`: 24 casos
+- `watermelon` vs `strawberry`: 20 casos
+- `avocado` vs `orange`: 19 casos
+- `cherry` vs `strawberry`: 17 casos
+
+Esto evidencia que el modelo tiene dificultades especialmente con frutas de apariencia similar o formas y colores cercanos, como mango/orange y watermelon/strawberry.
 
 ![Matriz de Confusión por Clases](classes_confusion_matrix.png)
 
@@ -144,14 +138,16 @@ El modelo alcanzó los siguientes resultados en el conjunto de prueba (Test Set)
 
 | Métrica | Valor | Interpretación |
 |----------|----------|----------|
-| **Loss (Categorical Crossentropy)** | 0.1468 | Bajo valor indica alta confianza en predicciones correctas |
-| **Accuracy** | 0.9539 (95.39%) | El modelo acierta en 95 de cada 100 predicciones |
-| **Precision** | 0.9539 (95.39%) | De las predicciones positivas, el 95.39% son correctas |
-| **Recall** | 0.9539 (95.39%) | El modelo identifica correctamente el 95.39% de cada clase |
-| **F1-Score** | 0.9539 (95.39%) | Balance perfecto entre precisión y recall |
+| **Loss (Categorical Crossentropy)** | 1.1158 | Valor moderado indica que el modelo comete errores significativos en sus predicciones |
+| **Accuracy** | 0.6455 (64.55%) | El modelo acierta en aproximadamente 65 de cada 100 predicciones |
+| **Precision** | 0.6455 (64.55%) | De las predicciones positivas, el 64.55% son correctas |
+| **Recall** | 0.6455 (64.55%) | El modelo identifica correctamente el 64.55% de cada clase |
+| **F1-Score** | 0.6455 (64.55%) | Balance consistente entre precisión y recall |
 
-**Análisis:** La alineación perfecta entre Accuracy, Precision, Recall y F1-Score demuestra que el clasificador alcanzó una simetría operativa ideal, sin sesgos hacia ninguna clase específica. El bajo valor de loss (0.1468) indica que el modelo asigna probabilidades muy altas y contundentes a las predicciones correctas. Esto demuestra que la red neuronal ha aprendido exitosamente a mapear los rasgos morfológicos y cromáticos con alto nivel de certeza matemática, sin comportarse como un clasificador que "adivina" aleatoriamente.
+**Análisis:** La alineación perfecta entre Accuracy, Precision, Recall y F1-Score demuestra que el clasificador mantiene un comportamiento equilibrado sin sesgos hacia ninguna clase específica. Sin embargo, el valor de loss de 1.1158 y la precisión del 64.55% indican que el modelo tiene margen significativo de mejora. Las confusiones observadas en la matriz multiclase entre frutas de apariencia similar sugieren que el modelo podría beneficiarse de técnicas de data augmentation, arquitecturas más profundas o ajuste adicional de hiperparámetros.
 
 # Referencias
 
 [1] Alrashdi, I., Sharawi, M., Ali, A.M. *et al.* Utilizing deep learning models for early detection and classification of fruit diseases: towards sustainable agriculture and enhanced food quality. *Sci Rep* **16**, 8167 (2026). https://doi.org/10.1038/s41598-026-38259-3
+
+[2] Nahum Montagud Rubio. (2021, agosto 23). Los 11 tipos de fruta (explicados con sus características). Portal Psicología y Mente. https://psicologiaymente.com/nutricion/tipos-fruta
