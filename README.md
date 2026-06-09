@@ -58,6 +58,20 @@ Para cada clase se crearon directorios separados dentro de `Training`, `Validati
 ## 6. Verificación de la distribución final
 Tras la nueva partición se verificó la distribución por clase en los tres subconjuntos con gráficos de barras. Además, se listaron las clases finales presentes en el conjunto de entrenamiento para asegurar que el filtrado y el balanceo se habían aplicado correctamente.
 
+## Data Augmentation
+
+Para aumentar la variabilidad del conjunto de entrenamiento y reducir el riesgo de overfitting, se aplicó augmentación de datos en las imágenes de entrenamiento mediante `ImageDataGenerator`.
+
+El código implementado aplica las siguientes transformaciones:
+- `rescale=1./255` normaliza los valores de los píxeles dividiéndolos por 255.
+- `rotation_range` rota cada imagen hasta 15 grados para generar variantes de orientación.
+- `width_shift_range` y `height_shift_range` desplazan las imágenes horizontal y verticalmente 0.2.
+- `shear_range` distorsiona ligeramente la imagen con un sesgo geométrico hasta 0.2.
+- `zoom_range` amplía o reduce la imagen en un factor de hasta 0.2.
+- `horizontal_flip` invierte las imágenes horizontalmente para obtener versiones espejo.
+
+Estas transformaciones se aplican solo a los datos de entrenamiento, mientras que los conjuntos de validación y prueba se escalan sin augmentación para evaluar el modelo en condiciones más realistas.
+
 # Construcción del modelo
 
 ## Métricas
