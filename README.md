@@ -147,6 +147,8 @@ El modelo alcanzó los siguientes resultados en el conjunto de prueba (Test Set)
 
 **Análisis:** La alineación perfecta entre Accuracy, Precision, Recall y F1-Score demuestra que el clasificador mantiene un comportamiento equilibrado sin sesgos hacia ninguna clase específica. Sin embargo, el valor de loss de 1.1158 y la precisión del 64.55% indican que el modelo tiene margen significativo de mejora. Las confusiones observadas en la matriz multiclase entre frutas de apariencia similar sugieren que el modelo podría beneficiarse de técnicas de data augmentation, arquitecturas más profundas o ajuste adicional de hiperparámetros.
 
+
+
 ## Modelo medio
 
 Inicialmente, se trató de realizar la mejora del modelo ajustando hiperparámetros. Sin embargo, los cambios no generaron una mejora significativa en los resultados y en algunos casos empeoraron el comportamiento del modelo. Por esta razón se decidió modificar también la arquitectura de la red para obtener una mayor capacidad de extracción de características.
@@ -175,6 +177,15 @@ Basándose en las recomendaciones del articulo de Alrashdi et al. [1], se implem
 | Dropout | No | Sí |
 
 En conclusión, se redujo el *learning rate* para un entrenamiento más estable y preciso, se aumentó el tamaño de entrada de la imágen de 100x100 a 256×256 para mejorar la resolución de la imagen y capturar mejor los detalles visuales, y se redujo el *batch size* para permitir un ajuste más fino de los pesos durante el entrenamiento.
+
+### Estrategias de entrenamiento
+
+Para este modelo se emplearon callbacks de entrenamiento que ayudan a evitar el sobreajuste y a conservar el mejor estado del modelo durante el proceso de ajuste:
+
+- **EarlyStopping**: Se monitorea `val_loss` y se detiene el entrenamiento cuando no hay mejora durante 3 épocas. Esto evita que el modelo siga ajustando los pesos una vez que la validación deja de mejorar, reduciendo el riesgo de overfitting.
+- **ModelCheckpoint**: Se guarda el mejor modelo basado en `val_loss` cada vez que mejora. De esta forma, aunque el entrenamiento continúe después de una época peor, se recupera siempre el modelo con el mejor desempeño en validación.
+
+Estas dos técnicas combinadas permiten entrenar de forma más eficiente y segura, deteniendo el aprendizaje en el punto óptimo y guardando el mejor resultado sin depender de la última época entrenada.
 
 ### Arquitectura del Modelo
 
