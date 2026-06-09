@@ -8,7 +8,7 @@ Este proyecto implementa una Red Neuronal Convolucional (CNN) para la clasificac
 Desarrollar e implementar un modelo de Redes Neuronales Convolucionales para clasificación de imágenes, donde la variable objetivo ("y") corresponde a la etiqueta de la fruta o vegetal, y las variables de entrada ("x") son las matrices de píxeles de cada imagen.
 
 # Descripción del dataset
-El conjunto de datos base utilizado para este proyecto es el dataset ["Fruits-360"](https://www.kaggle.com/datasets/moltean/fruits/data) creado por Mihai Oltean, disponible públicamente en Kaggle. Se trata de una base de datos de alta calidad diseñada específicamente para la clasificación de alimentos.
+El conjunto de datos base utilizado para este proyecto es el dataset ["Fruits262"](https://www.kaggle.com/datasets/aelchimminut/fruits262/data), disponible públicamente en Kaggle. Se trata de una base de datos de alta calidad diseñada específicamente para la clasificación de alimentos.
 
 Tiene un total de 262 categorías distintas que incluyen desde frutas comunes como manzanas, plátanos o peras, hasta frutos secos y vegetales exóticos como la cherimoya, pitahaya y kohlrabi. Contiene un total de 225,369 imagenes.
 
